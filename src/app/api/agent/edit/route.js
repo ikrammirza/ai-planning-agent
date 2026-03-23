@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { callGemini } from "@/lib/gemini";
+import { callGroq } from "@/lib/groq";
 
 export async function POST(request) {
   try {
@@ -32,7 +32,7 @@ Rules:
 Rewritten content:
 `;
 
-    const edited = await callGemini(prompt);
+    const edited = await callGroq(prompt);
 
     return NextResponse.json({ success: true, data: { content: edited.trim() } });
   } catch (error) {

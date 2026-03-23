@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { callGemini } from "@/lib/gemini";
+import { callGroq } from "@/lib/groq";
 
 export async function POST(request) {
   try {
@@ -38,7 +38,7 @@ Your job is to enrich this with insights. Respond ONLY with valid JSON, no markd
 }
 `;
 
-    const raw = await callGemini(prompt);
+    const raw = await callGroq(prompt);
     const cleaned = raw.replace(/```json|```/g, "").trim();
     const insightData = JSON.parse(cleaned);
 

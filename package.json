@@ -12,6 +12,7 @@
     "@google/generative-ai": "^0.24.1",
     "@react-pdf/renderer": "^4.3.2",
     "docx": "^9.6.1",
+    "groq-sdk": "^1.1.1",
     "html-to-text": "^9.0.5",
     "next": "16.2.1",
     "pdf-lib": "^1.17.1",

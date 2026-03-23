@@ -6,7 +6,6 @@ import {
   HeadingLevel,
   AlignmentType,
   BorderStyle,
-  ShadingType,
 } from "docx";
 
 export async function generateDOCX(report) {
@@ -19,7 +18,7 @@ export async function generateDOCX(report) {
   });
 
   const makeSectionParagraphs = (content) => {
-    return content.split("\n").filter(p => p.trim() !== "").map(para =>
+    return String(content ?? "").split("\n").filter(p => p.trim() !== "").map(para =>
       new Paragraph({
         children: [new TextRun({ text: para.trim(), size: 24, font: "Calibri" })],
         spacing: { after: 200 },
@@ -31,7 +30,6 @@ export async function generateDOCX(report) {
     sections: [
       {
         children: [
-          // Title
           new Paragraph({
             children: [
               new TextRun({
@@ -46,7 +44,6 @@ export async function generateDOCX(report) {
             spacing: { after: 200 },
           }),
 
-          // Problem statement
           new Paragraph({
             children: [
               new TextRun({
@@ -60,27 +57,28 @@ export async function generateDOCX(report) {
             spacing: { after: 200 },
           }),
 
-          // Date + metadata
           new Paragraph({
             children: [
               new TextRun({ text: `Generated: ${date}`, size: 20, font: "Calibri", color: "888888" }),
             ],
             spacing: { after: 100 },
           }),
+
           new Paragraph({
             children: [
-              new TextRun({ text: `Type: ${metadata.problemType}   |   Complexity: ${metadata.complexity}   |   Timeline: ${metadata.estimatedTimeline}`, size: 20, font: "Calibri", color: "888888" }),
+              new TextRun({
+                text: `Type: ${metadata.problemType}   |   Complexity: ${metadata.complexity}   |   Timeline: ${metadata.estimatedTimeline}`,
+                size: 20, font: "Calibri", color: "888888",
+              }),
             ],
             spacing: { after: 400 },
           }),
 
-          // Divider
           new Paragraph({
             border: { bottom: { color: "cccccc", style: BorderStyle.SINGLE, size: 1 } },
             spacing: { after: 400 },
           }),
 
-          // Section 1 — Problem Breakdown
           new Paragraph({
             text: "01 — Problem Breakdown",
             heading: HeadingLevel.HEADING_1,
@@ -88,7 +86,6 @@ export async function generateDOCX(report) {
           }),
           ...makeSectionParagraphs(sections.problemBreakdown.content),
 
-          // Section 2 — Stakeholders
           new Paragraph({
             text: "02 — Stakeholders",
             heading: HeadingLevel.HEADING_1,
@@ -96,7 +93,6 @@ export async function generateDOCX(report) {
           }),
           ...makeSectionParagraphs(sections.stakeholders.content),
 
-          // Stakeholder table (simple list)
           ...(stakeholderList || []).map(s =>
             new Paragraph({
               children: [
@@ -108,7 +104,6 @@ export async function generateDOCX(report) {
             })
           ),
 
-          // Section 3 — Solution Approach
           new Paragraph({
             text: "03 — Solution Approach",
             heading: HeadingLevel.HEADING_1,
@@ -116,7 +111,6 @@ export async function generateDOCX(report) {
           }),
           ...makeSectionParagraphs(sections.solutionApproach.content),
 
-          // Section 4 — Action Plan
           new Paragraph({
             text: "04 — Action Plan",
             heading: HeadingLevel.HEADING_1,
@@ -124,7 +118,6 @@ export async function generateDOCX(report) {
           }),
           ...makeSectionParagraphs(sections.actionPlan.content),
 
-          // Key Risks
           new Paragraph({
             text: "Key Risks",
             heading: HeadingLevel.HEADING_2,
@@ -140,7 +133,6 @@ export async function generateDOCX(report) {
             })
           ),
 
-          // Success Metrics
           new Paragraph({
             text: "Success Metrics",
             heading: HeadingLevel.HEADING_2,
@@ -173,7 +165,7 @@ export function generatePDFHTML(report) {
   });
 
   const formatContent = (content) =>
-    content.split("\n").filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`).join("");
+    String(content ?? "").split("\n").filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`).join("");
 
   return `<!DOCTYPE html>
 <html>

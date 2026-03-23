@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { callGemini } from "@/lib/gemini";
+import { callGroq } from "@/lib/groq";
 
 export async function POST(request) {
   try {
@@ -34,7 +34,7 @@ Analyze this problem and break it down into exactly these components. Respond ON
 }
 `;
 
-    const raw = await callGemini(prompt);
+    const raw = await callGroq(prompt);
 
     // Strip markdown code fences if Gemini wraps the JSON
     const cleaned = raw.replace(/```json|```/g, "").trim();

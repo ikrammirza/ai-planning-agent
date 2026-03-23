@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
-import { callGemini } from "@/lib/gemini";
+import { callGroq } from "@/lib/groq";
+
+function extractString(value) {
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && value !== null) {
+    return Object.entries(value)
+      .map(([key, val]) => `${key}:\n${val}`)
+      .join("\n\n");
+  }
+  return String(value ?? "");
+}
 
 export async function POST(request) {
   try {
@@ -22,21 +32,22 @@ Insight Data:
 - Key Risks: ${insightData.keyRisks.join(", ")}
 - Success Metrics: ${insightData.successMetrics.join(", ")}
 
-Write a complete professional report. Respond ONLY with valid JSON, no markdown, no explanation:
+Write a complete professional report. Respond ONLY with valid JSON, no markdown, no explanation.
+
+IMPORTANT: Every value must be a plain string. Do NOT nest objects inside any value.
 
 {
-  "problemBreakdown": "Write 3-4 detailed paragraphs covering: what the problem actually is, why it exists, what makes it complex, and what solving it would unlock. Be specific and analytical.",
-  "stakeholders": "Write 2-3 paragraphs describing who is affected by this problem, what each group needs, and how their needs sometimes conflict. Reference the stakeholders found in research.",
-  "solutionApproach": "Write 3-4 paragraphs describing the recommended strategic approach to solving this problem. Cover the high-level architecture, key decisions to make, technology or process considerations, and why this approach over alternatives.",
-  "actionPlan": "Write a detailed action plan covering Phase 1 (Foundation, weeks 1-4), Phase 2 (Core Build, weeks 5-12), Phase 3 (Launch & Iterate, weeks 13-20). Each phase should have specific deliverables and milestones."
+  "problemBreakdown": "Write 3-4 detailed paragraphs as a single plain text string covering what the problem is, why it exists, what makes it complex, and what solving it would unlock.",
+  "stakeholders": "Write 2-3 paragraphs as a single plain text string describing who is affected, what each group needs, and how their needs sometimes conflict.",
+  "solutionApproach": "Write 3-4 paragraphs as a single plain text string describing the recommended strategic approach, key decisions, technology considerations, and why this approach over alternatives.",
+  "actionPlan": "Write the full action plan as a single plain text string covering Phase 1 Foundation weeks 1-4, Phase 2 Core Build weeks 5-12, Phase 3 Launch and Iterate weeks 13-20. Include specific deliverables for each phase. Do not use nested objects."
 }
 `;
 
-    const raw = await callGemini(prompt);
+    const raw = await callGroq(prompt);
     const cleaned = raw.replace(/```json|```/g, "").trim();
     const reportData = JSON.parse(cleaned);
 
-    // Build the final complete report object
     const finalReport = {
       problemStatement: problem,
       generatedAt: new Date().toISOString(),
@@ -51,19 +62,19 @@ Write a complete professional report. Respond ONLY with valid JSON, no markdown,
       sections: {
         problemBreakdown: {
           title: "Problem Breakdown",
-          content: reportData.problemBreakdown,
+          content: extractString(reportData.problemBreakdown),
         },
         stakeholders: {
           title: "Stakeholders",
-          content: reportData.stakeholders,
+          content: extractString(reportData.stakeholders),
         },
         solutionApproach: {
           title: "Solution Approach",
-          content: reportData.solutionApproach,
+          content: extractString(reportData.solutionApproach),
         },
         actionPlan: {
           title: "Action Plan",
-          content: reportData.actionPlan,
+          content: extractString(reportData.actionPlan),
         },
       },
     };
